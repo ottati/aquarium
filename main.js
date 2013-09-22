@@ -1,32 +1,44 @@
 // 定数
-var SCREEN_SIZE = 500;
+var SCREEN_SIZE = 600;
 var FPS = 30;
-
-var NUM_BOIDS = 400;
-var BOID_SIZE = 2;
-var VISIBLE_RANGE = 100;
-var IDEAL_DIST = 20;
-var MAX_SPEED = 5;
+var NUM_BOIDS = 200;            // ボイドの数
+var BOID_SIZE = 4;              // ボイドのサイズ
+var VISIBLE_RANGE = 100;        // ボイドの可視範囲
+var IDEAL_DIST = 20;            // ボイドとボイドの理想距離
+var MAX_SPEED = 5;              // ボイドの最大速度
 
 var canvas = document.getElementById('world');
 var ctx = canvas.getContext('2d');
-var boids = [];
-var enemies = [];
+var boids = [];                 // ボイドを格納
+var enemies = [];               // 敵を格納
 
 window.onload = function() {
+    /**
+     * canvas
+     */
     canvas.width = canvas.height = SCREEN_SIZE;
     scaleRate = Math.min(window.innerWidth/SCREEN_SIZE, window.innerHeight/SCREEN_SIZE);
     canvas.style.width = canvas.style.height = SCREEN_SIZE*scaleRate + 'px';
     canvas.style.display = "block";
     canvas.style.margin = "auto";
     canvas.style.background = "#000033";
+    
+    /**
+     * ボイド生成
+     */
     for (var i=0; i<NUM_BOIDS; i++){
         var boid = new Boid(i);
         boids.push(boid);
     }
+    
+    /**
+     * 敵生成
+     */
     enemies.push(new Enemy());
-    enemies.push(new Enemy());
-    enemies.push(new Enemy());
+    
+    /**
+     * クリックしている間は敵がボイドを追跡する
+     */
     document.addEventListener('mousedown', function() {
         for (var i=0,len=enemies.length; i<len; i++) {
             enemies[i].startChase();
@@ -37,7 +49,11 @@ window.onload = function() {
             enemies[i].endChase();
         }
     }, false);
-simulate();
+
+    /**
+     * シミュレート開始
+     */
+    simulate();
 };
 
 
@@ -58,23 +74,23 @@ var simulate = function() {
         e.draw();
     }
     setTimeout(simulate, 1000/FPS);
-    
 };
 
+
 var Boid = function(index) {
-    this.x = Math.random() * SCREEN_SIZE;
-    this.y = Math.random() * SCREEN_SIZE;
-    this.vx = (Math.random()*2-1)*3;
-    this.vy = (Math.random()*2-1)*3;
-    this.color = 'rgb('
+    this.x = Math.random() * SCREEN_SIZE; // x座標
+    this.y = Math.random() * SCREEN_SIZE; // y座標
+    this.vx = (Math.random()*2-1)*3; // x方向の速度
+    this.vy = (Math.random()*2-1)*3; // y方向の速度
+    this.color = 'rgb('         // ボイドの色
         + Math.floor(Math.random()*255)
         + ', '
         + Math.floor(Math.random()*255)
         + ', '
         + Math.floor(Math.random()*200) + 55
         + ')';
-    this.index = index;
-    this.escapes = false;
+    this.index = index;         // ボイドの番号
+    this.escapes = false;       // 逃げフラグ
 };
 Boid.prototype = {
     applyForces: function() {     
@@ -117,11 +133,11 @@ Boid.prototype = {
             this.vy += visibleVelocity.y / 8;
         }
         // escape from enemies
-        var visibleEnemies = [];
+        var visibleEnemies = []; // 可視範囲に存在する敵
         for (var i=0,len=enemies.length; i<len; i++) {
             var e = enemies[i];
             var d = getDistance(e, this);
-            if (d < 100) {
+            if (d < VISIBLE_RANGE) {
                 visibleEnemies.push(e);
                 this.vx += -(e.x-this.x) / d;
                 this.vy += -(e.y-this.y) / d;
@@ -163,6 +179,7 @@ Boid.prototype = {
     },
 };
 
+
 var Enemy = function() {
     this.x = Math.random()*SCREEN_SIZE;
     this.y = Math.random()*SCREEN_SIZE;
@@ -178,15 +195,14 @@ var Enemy = function() {
     this.color = 'rgb(0, 0, 255)';
 }
 Enemy.prototype = {
-    /**
-     * 描画
-     */
     applyForces: function() {
         if (this.chases) {
+            // targetを追跡
             var d = getDistance(this, this.target);
             this.vx += (this.target.x - this.x) / d;
             this.vy += (this.target.y - this.y) / d;
         } else {
+            // 適当にぶらぶら
             this.vx += (this.distination.x - this.x) / 2000;
             this.vy += (this.distination.x - this.x) / 2000;
             if (Math.random() < 0.01) {
@@ -194,6 +210,9 @@ Enemy.prototype = {
                 this.distination.y = Math.random() * SCREEN_SIZE;
             }
         }
+        /**
+         * スピード制限
+         */
         var currentSpeed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
         if (currentSpeed >= this.maxSpeed) {
             var rate = this.maxSpeed / currentSpeed;
@@ -201,12 +220,18 @@ Enemy.prototype = {
             this.vy *= rate;
         }
     },
+    /**
+     * 追尾開始
+     */
     startChase: function() {
         this.chases = true;
         this.target = boids[Math.floor(Math.random()*boids.length)];
         this.color = 'rgb(200, 30, 30)';
         this.maxSpeed = MAX_SPEED*2;
     },
+    /**
+     * 追尾終了
+     */
     endChase: function() {
         this.chases = false;
         this.color = 'rgb(0, 0, 255)';
@@ -226,7 +251,9 @@ Enemy.prototype = {
     },
 };
 
-
+/**
+ * ２つのObjectの距離を返します
+ */
 var getDistance = function(b1, b2) {
     var x = Math.abs(b1.x - b2.x);
     var y = Math.abs(b1.y - b2.y);
