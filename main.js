@@ -53,7 +53,7 @@ window.onload = function() {
     /**
      * シミュレート開始
      */
-    simulate();
+    setInterval(simulate, 1000/FPS);    
 };
 
 
@@ -73,7 +73,6 @@ var simulate = function() {
         e.move();
         e.draw();
     }
-    setInterval(simulate, 1000/FPS);
 };
 
 
