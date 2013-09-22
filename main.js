@@ -1,10 +1,10 @@
 // 定数
 var SCREEN_SIZE = 600;
 var FPS = 30;
-var NUM_BOIDS = 100;            // ボイドの数
+var NUM_BOIDS = 150;            // ボイドの数
 var BOID_SIZE = 4;              // ボイドのサイズ
 var VISIBLE_RANGE = 100;        // ボイドの可視範囲
-var IDEAL_DIST = 20;            // ボイドとボイドの理想距離
+var IDEAL_DIST = 25;            // ボイドとボイドの理想距離
 var MAX_SPEED = 5;              // ボイドの最大速度
 
 var canvas = document.getElementById('world');
