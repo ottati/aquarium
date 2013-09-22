@@ -73,7 +73,7 @@ var simulate = function() {
         e.move();
         e.draw();
     }
-    setTimeout(simulate, 1000/FPS);
+    setInterval(simulate, 1000/FPS);
 };
 
 
