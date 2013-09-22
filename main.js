@@ -210,7 +210,7 @@ Enemy.prototype = {
         } else {
             // 適当にぶらぶら
             this.vx += (this.distination.x - this.x) / 2000;
-            this.vy += (this.distination.x - this.x) / 2000;
+            this.vy += (this.distination.y - this.x) / 2000;
             if (Math.random() < 0.01) {
                 this.distination.x = Math.random() * SCREEN_SIZE;
                 this.distination.y = Math.random() * SCREEN_SIZE;
