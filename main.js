@@ -4,7 +4,7 @@ var FPS = 30;
 var NUM_BOIDS = 200;            // ボイドの数
 var BOID_SIZE = 4;              // ボイドのサイズ
 var VISIBLE_RANGE = 100;        // ボイドの可視範囲
-var IDEAL_DIST = 15;            // ボイドとボイドの理想距離
+var IDEAL_DIST = 10;            // ボイドとボイドの理想距離
 var MAX_SPEED = 5;              // ボイドの最大速度
 
 var canvas = document.getElementById('world');
@@ -114,14 +114,15 @@ Boid.prototype = {
         var minDist = 100000;
         for (var i=0,len=visibleFriends.length; i<len; i++) {
             var b = visibleFriends[i];
+            var d = getDistance(this, b);
             visibleCenter.x += b.x;
             visibleCenter.y += b.y;
             visibleVelocity.x += b.vx;
             visibleVelocity.y += b.vy;
-            if (getDistance(this, b) < IDEAL_DIST) {
+            if (d < IDEAL_DIST) {
                 // Boids try to keep a small distance away from other objects 
-                this.vx += -(b.x-this.x) / 100;
-                this.vy += -(b.y-this.y) / 100;
+                this.vx += -(b.x-this.x) / (d+0.0001);
+                this.vy += -(b.y-this.y) / (d+0.0001);
             }
         }
 
@@ -145,8 +146,8 @@ Boid.prototype = {
             var d = getDistance(e, this);
             if (d < VISIBLE_RANGE) {
                 visibleEnemies.push(e);
-                this.vx += -(e.x-this.x) / d;
-                this.vy += -(e.y-this.y) / d;
+                this.vx += -(e.x-this.x) / (d+0.0001);
+                this.vy += -(e.y-this.y) / (d+0.0001);
             }
         }
         if (visibleEnemies.length > 0) {
